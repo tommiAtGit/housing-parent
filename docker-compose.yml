@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - db:/var/lib/mysql
+
+    housingCooperative:
+        depends_on:
+          - mysqldb
+        container_name: hc_housingCooperative
+        build: ./../hc_housingCooperative/
+        image: hc_housingcooperative:latest
+        ports:
+            - 18888:8888
+        networks:
+            - spring-cloud-network
+    housingapartment:
+        depends_on:
+          - mysqldb
+        container_name: hc_housingApartment
+        build: ./../hc_housingApartment/
+        image: hc_housingapartmnet:latest
+        ports:
+            - 18888:8888
+        networks:
+            - spring-cloud-network
+
+    housinguser:
+        depends_on:
+          - mysqldb
+        container_name: hc_housingUser
+        build: ./../hc_housingUser/
+        image: hc_housinguser:latest
+        ports:
+            - 18888:8888
+        networks:
+            - spring-cloud-network
+network:
+  spring-cloud-network:
+        driver: bridge
